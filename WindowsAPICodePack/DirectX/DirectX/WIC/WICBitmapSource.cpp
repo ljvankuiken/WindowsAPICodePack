@@ -79,7 +79,7 @@ cli::array<unsigned char>^ BitmapSource::CopyPixels()
     rect.Height = size.Height;
 
     // Force the stride to be a multiple of sizeof(DWORD)
-    UINT stride = rect.Height * 4;
+    UINT stride = rect.Width * 4;
     stride = ((stride + sizeof(DWORD) - 1) / sizeof(DWORD)) * sizeof(DWORD);
     UINT bufferSize = stride * rect.Height;
     
@@ -106,7 +106,7 @@ IntPtr BitmapSource::CopyPixelsToMemory( BitmapRectangle rectangle )
     rect.Height = rectangle.Height;
 
     // Force the stride to be a multiple of sizeof(DWORD)
-    UINT stride = rect.Height * 4;
+    UINT stride = rect.Width * 4;
     stride = ((stride + sizeof(DWORD) - 1) / sizeof(DWORD)) * sizeof(DWORD);
     UINT bufferSize = stride * rect.Height;
 
@@ -132,7 +132,7 @@ IntPtr BitmapSource::CopyPixelsToMemory()
     rect.Height = size.Height;
 
     // Force the stride to be a multiple of sizeof(DWORD)
-    UINT stride = rect.Height * 4;
+    UINT stride = rect.Width * 4;
     stride = ((stride + sizeof(DWORD) - 1) / sizeof(DWORD)) * sizeof(DWORD);
     UINT bufferSize = stride * rect.Height;
 
