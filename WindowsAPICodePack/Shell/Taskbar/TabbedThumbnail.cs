@@ -162,7 +162,10 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
                 if (_title != value)
                 {
                     _title = value;
-                    if (TitleChanged != null) { TitleChanged(this, EventArgs.Empty); }
+                    if (TitleChanged != null)
+                    {
+                        TitleChanged(this, EventArgs.Empty);
+                    }
                 }
             }
         }
@@ -180,7 +183,10 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
                 if (_tooltip != value)
                 {
                     _tooltip = value;
-                    if (TooltipChanged != null) { TooltipChanged(this, EventArgs.Empty); }
+                    if (TooltipChanged != null)
+                    {
+                        TooltipChanged(this, EventArgs.Empty);
+                    }
                 }
             }
         }
@@ -207,7 +213,9 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
         /// <remarks>This method will not release the icon handle. It is the caller's responsibility to release the icon handle.</remarks>
         public void SetWindowIcon(IntPtr iconHandle)
         {
-            Icon = iconHandle != IntPtr.Zero ? System.Drawing.Icon.FromHandle(iconHandle) : null;
+            Icon = iconHandle != IntPtr.Zero
+                ? System.Drawing.Icon.FromHandle(iconHandle)
+                : null;
 
             if (TaskbarWindow != null && TaskbarWindow.TabbedThumbnailProxyWindow != null)
             {
@@ -319,11 +327,11 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
             {
                 ShellNativeMethods.DeleteObject(CurrentHBitmap);
             }
-
+            
             // Set the new bitmap
             CurrentHBitmap = hBitmap;
 
-            // Let DWM know to invalidate its cached thumbnail/preview and ask us for a new one            
+            // Let DWM know to invalidate its cached thumbnail/preview and ask us for a new one
             TaskbarWindowManager.InvalidatePreview(TaskbarWindow);
         }
 
@@ -355,8 +363,6 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
 
         #endregion
 
-
-
         #region Events
 
         /// <summary>
@@ -368,6 +374,11 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
         /// This event is raised when the Tooltip property changes.
         /// </summary>
         public event EventHandler TooltipChanged;
+
+        /// <summary>
+        /// The event that occurs when a tab is closing on the taskbar thumbnail preview.
+        /// </summary>
+        public event EventHandler<TabbedThumbnailClosingEventArgs> TabbedThumbnailClosing;
 
         /// <summary>
         /// The event that occurs when a tab is closed on the taskbar thumbnail preview.
@@ -425,19 +436,35 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
         }
 
         /// <summary>
-        /// Returns true if the thumbnail was removed from the taskbar; false if it was not.
+        /// Returns true if the thumbnail should be removed from the taskbar; false if it should not.
         /// </summary>
-        /// <returns>Returns true if the thumbnail was removed from the taskbar; false if it was not.</returns>
-        internal bool OnTabbedThumbnailClosed()
+        /// <returns>Returns true if the thumbnail should be removed from the taskbar; false if it should not.</returns>
+        internal bool OnTabbedThumbnailClosing()
+        {
+            var closingHandler = TabbedThumbnailClosing;
+            if (closingHandler != null)
+            {
+                var eventArgs = GetTabbedThumbnailClosingEventArgs();
+
+                closingHandler(this, eventArgs);
+
+                if (eventArgs.Cancel)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        internal void OnTabbedThumbnailClosed()
         {
             var closedHandler = TabbedThumbnailClosed;
             if (closedHandler != null)
             {
-                var closingEvent = GetTabbedThumbnailClosingEventArgs();
+                var eventArgs = GetTabbedThumbnailClosedEventArgs();
 
-                closedHandler(this, closingEvent);
-
-                if (closingEvent.Cancel) { return false; }                
+                closedHandler(this, eventArgs);
             }
             else
             {
@@ -447,7 +474,6 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
 
             // Remove it from the internal list as well as the taskbar
             TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(this);
-            return true;
         }
 
         internal void OnTabbedThumbnailActivated()
@@ -483,7 +509,23 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
             }
         }
 
-        private TabbedThumbnailClosedEventArgs GetTabbedThumbnailClosingEventArgs()
+        private TabbedThumbnailClosingEventArgs GetTabbedThumbnailClosingEventArgs()
+        {
+            TabbedThumbnailClosingEventArgs eventArgs = null;
+
+            if (this.WindowHandle != IntPtr.Zero)
+            {
+                eventArgs = new TabbedThumbnailClosingEventArgs(this.WindowHandle);
+            }
+            else if (this.WindowsControl != null)
+            {
+                eventArgs = new TabbedThumbnailClosingEventArgs(this.WindowsControl);
+            }
+
+            return eventArgs;
+        }
+
+        private TabbedThumbnailClosedEventArgs GetTabbedThumbnailClosedEventArgs()
         {
             TabbedThumbnailClosedEventArgs eventArgs = null;
 
@@ -495,7 +537,7 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
             {
                 eventArgs = new TabbedThumbnailClosedEventArgs(this.WindowsControl);
             }
-
+                
             return eventArgs;
         }
 
@@ -546,7 +588,10 @@ namespace Microsoft.WindowsAPICodePack.Taskbar
             {
                 _taskbarWindow = null;
 
-                if (Icon != null) { Icon.Dispose(); }
+                if (Icon != null)
+                {
+                    Icon.Dispose();
+                }
                 Icon = null;
 
                 _title = null;

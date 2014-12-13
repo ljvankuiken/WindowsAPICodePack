@@ -291,6 +291,7 @@
     <Compile Include="Taskbar\JumpListLink.cs" />
     <Compile Include="Taskbar\JumpListSeparator.cs" />
     <Compile Include="Taskbar\TabbedThumbnailClosedEventArgs.cs" />
+    <Compile Include="Taskbar\TabbedThumbnailClosingEventArgs.cs" />
     <Compile Include="Taskbar\TabbedThumbnailScreenCapture.cs" />
     <Compile Include="Taskbar\TabbedThumbnailManager.cs" />
     <Compile Include="Taskbar\TabbedThumbnailBitmapRequestedEventArgs.cs" />
